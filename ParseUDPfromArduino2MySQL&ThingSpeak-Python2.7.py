@@ -16,10 +16,10 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 
 host = 'localhost'
-login = 'dust'
-password = 'pM10pM25'
-database = 'dust'
-table = 'readings'
+login = 'MySQL login'
+password = 'MySQL DB PASSWORD'
+database = 'DB NAME'
+table = 'TABLE NAME'
 API_key = 'THINGSPEAK API WRITE KEY'
 
 while True:
