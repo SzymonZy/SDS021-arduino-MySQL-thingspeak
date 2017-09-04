@@ -88,7 +88,7 @@ void loop()
   if (heaterState==0)
     digitalWrite(relay_pin,HIGH);     //turn OFF
   else
-    if (sensor.getTemp()>60)          //Don't OVERHEAT! It can be dangerous! 
+    if (sensor.getTemp()<60)          //Don't OVERHEAT! It can be dangerous! 
         digitalWrite(relay_pin,LOW);  //turn ON
   
   if(millis()-TimeS > interval-suck_time)
