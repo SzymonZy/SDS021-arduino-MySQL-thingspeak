@@ -6,7 +6,7 @@
 #include <EthernetUdp.h>
 
 #define interval 299000                   //delay between each measurement - 5  minutes
-#define relay_pin 6                       //Relay command pin
+#define relay_pin 6                       //Heater relay command pin
 #define suck_time 3000                    //time to suck air into sensor before returning results
 
 float RH=0;                               //variable to keep realtive humidity
