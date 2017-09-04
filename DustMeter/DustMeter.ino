@@ -20,9 +20,9 @@ unsigned long long int TimeS;             //current time since last measurement
 
 //Initialize Ethernet
 EthernetUDP Udp;
-byte mac[] = {0x90, 0xA2, 0xDA, 0x04, 0xFC, 0x18};
+byte mac[] = {0x1B, 0x18, 0xDA, 0x04, 0xFC, 0x7C};
 unsigned int localport = 7708;
-IPAddress remoteIP(192,168,1,24);         //CHANGE THIS ONE! To your python host address.
+IPAddress remoteIP(10,0,0,2);         //CHANGE THIS ONE! To your python host address.
 unsigned int remotePort = 5005;
 
 int heaterState=1;                        //default heater on - 1, tu turn off set 0
@@ -34,8 +34,6 @@ void setup()
   Ethernet.begin(mac);                    //Get DHCP IP address
   Serial.print("IP : ");
   Serial.println(Ethernet.localIP());
-  
-  //Udp.begin(localport);
   
   delay(1000);
   Serial.println("Initialize software serial for SDS021");
@@ -79,7 +77,7 @@ void loop()
           Serial.print(" RH=");
           Serial.println(RH);
       }
-   if (RH>=65)
+   if (RH>=65||sensor.getTemp()<0)
    {
       Serial.print("Heater is ON");
       Serial.print(" RH=");
@@ -90,7 +88,7 @@ void loop()
   if (heaterState==0)
     digitalWrite(relay_pin,HIGH);     //turn OFF
   else
-    if (sensor.getTemp()<60)          //Don't OVERHEAT! It can be dangerous! 
+    if (sensor.getTemp()>60)          //Don't OVERHEAT! It can be dangerous! 
         digitalWrite(relay_pin,LOW);  //turn ON
   
   if(millis()-TimeS > interval-suck_time)
