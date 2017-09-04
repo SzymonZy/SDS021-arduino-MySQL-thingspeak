@@ -20,7 +20,7 @@ login = 'dust'
 password = 'pM10pM25'
 database = 'dust'
 table = 'readings'
-API_key = '8OTUDJSEOZZPRSF9'
+API_key = 'THINGSPEAK API WRITE KEY'
 
 while True:
     print('waiting to receive message')
