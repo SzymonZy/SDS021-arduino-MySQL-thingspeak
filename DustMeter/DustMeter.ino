@@ -92,6 +92,19 @@ void loop()
     if (sensor.getTemp()<60)          //Don't OVERHEAT! It can be dangerous! 
         digitalWrite(relay_pin,LOW);  //turn ON
   
+  renew=Ethernet.maintain();
+  switch (renew)
+  {
+    case 0 : Serial.println("Nothing happend"); break;
+    case 1 : Serial.println("Renew failed"); break;
+    case 2 : Serial.println("Renew success"); break;
+    case 3 : Serial.println("Rebind fail"); break;
+    case 4 : Serial.println("Rebind sucess"); break;
+    default: Serial.println("Dunno what happend");
+  }
+  Serial.print("My maintaned IP address is: ");
+  Serial.println(Ethernet.localIP());
+  
   if(millis()-TimeS > interval-suck_time)
   {
       Serial.println("Read dust:");
@@ -105,18 +118,6 @@ void loop()
             Serial.print(pm10, 1);
             Serial.print("ug/m3");
             Serial.println("Renew of DHCP lease");
-            renew=Ethernet.maintain();
-            switch (renew)
-            {
-              case 0 : Serial.println("Nothing happend"); break;
-              case 1 : Serial.println("Renew failed"); break;
-              case 2 : Serial.println("Renew success"); break;
-              case 3 : Serial.println("Rebind fail"); break;
-              case 4 : Serial.println("Rebind sucess"); break;
-              default: Serial.println("Dunno what happend");
-            }
-            Serial.print("My IP address is: ");
-            Serial.println(Ethernet.localIP());
             Serial.println("Upload Data");
             UploadData(pm25,pm10,heaterState);
           }      
