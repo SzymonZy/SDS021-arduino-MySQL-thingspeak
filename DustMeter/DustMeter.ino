@@ -33,6 +33,8 @@ void setup()
   Serial.begin(9600);                     //open serial over USB at 9600 baud
   Serial.println("Booting UP:");
   Ethernet.begin(mac);                    //Get DHCP IP address
+  //Ipaddress ip[]={172,23,198,95};       //set up static IP instead of the DHCP one
+  //Ethernet.begin(mac,IP);               //just uncomment this two lines and comment one above
   Serial.print("IP : ");
   Serial.println(Ethernet.localIP());
   
