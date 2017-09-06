@@ -115,6 +115,8 @@ void loop()
               case 4 : Serial.println("Rebind sucess"); break;
               default: Serial.println("Dunno what happend");
             }
+            Serial.print("My IP address is: ");
+            Serial.println(Ethernet.localIP());
             Serial.println("Upload Data");
             UploadData(pm25,pm10,heaterState);
           }      
