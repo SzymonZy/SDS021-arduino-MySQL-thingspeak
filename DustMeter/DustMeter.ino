@@ -22,10 +22,11 @@ unsigned long long int TimeS;             //current time since last measurement
 EthernetUDP Udp;
 byte mac[] = {0x1B, 0x18, 0xDA, 0x04, 0xFC, 0x7C};
 unsigned int localport = 7708;
-IPAddress remoteIP(10,0,0,2);         //CHANGE THIS ONE! To your python host address.
+IPAddress remoteIP(10,0,0,2);             //CHANGE THIS ONE! To your python host address.
 unsigned int remotePort = 5005;
 
 int heaterState=1;                        //default heater on - 1, tu turn off set 0
+int renew;                                //DHCP renew result
 
 void setup() 
 {
@@ -103,6 +104,17 @@ void loop()
             Serial.print("ug/m3 [10]:");
             Serial.print(pm10, 1);
             Serial.print("ug/m3");
+            Serial.println("Renew of DHCP lease");
+            renew=Ethernet.maintain();
+            switch (renew)
+            {
+              case 0 : Serial.println("Nothing happend"); break;
+              case 1 : Serial.println("Renew failed"); break;
+              case 2 : Serial.println("Renew success"); break;
+              case 3 : Serial.println("Rebind fail"); break;
+              case 4 : Serial.println("Rebind sucess"); break;
+              default: Serial.println("Dunno what happend");
+            }
             Serial.println("Upload Data");
             UploadData(pm25,pm10,heaterState);
           }      
