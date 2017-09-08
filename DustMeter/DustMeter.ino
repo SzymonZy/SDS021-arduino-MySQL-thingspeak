@@ -5,7 +5,7 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
-#define interval 299000                   //delay between each measurement - 5  minutes
+#define interval 899000                   //delay between each measurement in seconds - 5  minutes - 300 000, 15 minutes 900 000
 #define relay_pin 6                       //Heater relay command pin
 #define suck_time 3000                    //time to suck air into sensor before returning results
 
@@ -16,19 +16,21 @@ SoftwareSerial particleSensor(4, 5);      // RX, TX for SDS021
 float pm25;                               //2.5um particles detected in ug/m3
 float pm10;                               //10um particles detected in ug/m3
 unsigned int deviceID;                    //Two byte unique ID set by factor
-unsigned long long int TimeS;             //current time since last measurement
+unsigned long TimeS;                      //current time since last measurement
+unsigned long Ttmp;                       //Temporary variable to hold seconds to next measurement
 
 //Initialize Ethernet
 EthernetUDP Udp;
-byte mac[] = {0x1B, 0x18, 0xDA, 0x04, 0xFC, 0x7C};
+byte mac[] = {0x00, 0xAA, 0xBB, 0xCC, 0xDE, 0x02};
 unsigned int localport = 7708;
-IPAddress remoteIP(10,0,0,2);             //CHANGE THIS ONE! To your python host address.
+IPAddress remoteIP(192,168,1,23);          //CHANGE THIS ONE! To your python host address.
 unsigned int remotePort = 5005;
 
 int heaterState=1;                        //default heater on - 1, tu turn off set 0
 int renew;                                //DHCP renew result
+int no=0;                                 //number of proceded meassurement
 
-void setup() 
+void setup()
 {
   Serial.begin(9600);                     //open serial over USB at 9600 baud
   Serial.println("Booting UP:");
@@ -37,15 +39,15 @@ void setup()
   //Ethernet.begin(mac,IP);               //just uncomment this two lines and comment one above
   Serial.print("IP : ");
   Serial.println(Ethernet.localIP());
-  
+ 
   delay(1000);
   Serial.println("Initialize software serial for SDS021");
   particleSensor.begin(9600);             //SetUp software serial port for SDS021
-  
+ 
   delay(1000);
   Serial.println("Initialize Si7021");
   sensor.begin();
-  
+ 
   delay(1000);
   Serial.println("Initialize relay control");
   pinMode(relay_pin, OUTPUT);             //set relay command pin as digital output
@@ -53,62 +55,77 @@ void setup()
 
   delay(1000);
   TimeS=millis();                         //get current time since power on
+  Ttmp=interval/1000;                     //initial seconds to next measurement
   heaterState=1;                          //let's start with heater on
 }
 
-void loop() 
+void loop()
 {
-  RH=sensor.getRH();              //save current relative humidity as RH
+  //if (millis()<TimeS)                     //Take care of millis() rollover!
+  //    TimeS=0;                            //if current time is earlier then last measure there were a rollover
+  RH=sensor.getRH();                      //save current relative humidity as RH
+  //Serial.print(" RH=");
+  //Serial.println(RH);
   if (RH<=50)
   {
-    Serial.print("Heater is OFF");
-    Serial.print(" RH=");
-    Serial.println(RH);
+    //Serial.println("Heater is OFF");
     heaterState=0;
   }
   else
     if (RH>50&&heaterState==1)
     {
-        Serial.print("Heater is ON");
-        Serial.print(" RH=");
-        Serial.println(RH);
+        //Serial.println("Heater is ON");
     }
     else
       if (RH>50&&heaterState==0)
       {
-          Serial.print("Heater is OFF");
-          Serial.print(" RH=");
-          Serial.println(RH);
+          //Serial.println("Heater is OFF");
       }
    if (RH>=65||sensor.getTemp()<0)
    {
-      Serial.print("Heater is ON");
-      Serial.print(" RH=");
-      Serial.println(RH);
+      //Serial.println("Heater is ON");
       heaterState=1;
   }
 
   if (heaterState==0)
     digitalWrite(relay_pin,HIGH);     //turn OFF
   else
-    if (sensor.getTemp()<60)          //Don't OVERHEAT! It can be dangerous! 
+    if (sensor.getTemp()<60)          //Don't OVERHEAT! It can be dangerous!
         digitalWrite(relay_pin,LOW);  //turn ON
-  
+ 
   renew=Ethernet.maintain();
   switch (renew)
   {
-    case 0 : Serial.println("Nothing happend"); break;
+    //case 0 : Serial.println("Nog happend"); break;
     case 1 : Serial.println("Renew failed"); break;
-    case 2 : Serial.println("Renew success"); break;
+    case 2 : Serial.println("Renew success"); Serial.println(Ethernet.localIP()); break;
     case 3 : Serial.println("Rebind fail"); break;
-    case 4 : Serial.println("Rebind sucess"); break;
-    default: Serial.println("Dunno what happend");
+    case 4 : Serial.println("Rebind sucess"); Serial.println(Ethernet.localIP()); break;
+    //default: Serial.println("Dunno what happend");
   }
-  Serial.print("My maintaned IP address is: ");
-  Serial.println(Ethernet.localIP());
-  
+  //Serial.print("My maintaned IP address is: ");
+  //Serial.println(Ethernet.localIP());
+ 
+  if (Ttmp!=((TimeS+interval-millis())/1000))
+  {
+    Serial.print("Time to wake up: ");
+    Serial.print(Ttmp);
+    Serial.print(" RH=");
+    Serial.print(RH);
+    Serial.print(" Heater state=");
+    Serial.println(heaterState);
+
+  }
+  Ttmp=(TimeS+interval-millis())/1000;
+  //Serial.println((TimeS+interval-millis())/1000);
+ 
+  while(particleSensor.available())           //Empty particle sensor buffer
+    particleSensor.read();                    //this prevents Soft Serial to hang
+ 
   if(millis()-TimeS > interval-suck_time)
   {
+      Serial.print("Measure no: ");
+      Serial.println(++no);
       Serial.println("Read dust:");
       wakeUp();
       delay(suck_time);
@@ -118,13 +135,12 @@ void loop()
             Serial.print(pm25, 1);
             Serial.print("ug/m3 [10]:");
             Serial.print(pm10, 1);
-            Serial.print("ug/m3");
-            Serial.println("Renew of DHCP lease");
+            Serial.println("ug/m3");
             Serial.println("Upload Data");
             UploadData(pm25,pm10,heaterState);
-          }      
+          }    
       goToSleep();
-      TimeS=millis();    
+      TimeS=millis();  
   }
 }
 
@@ -306,7 +322,7 @@ void sendCommand(byte commandNumber, byte dataByte2, byte dataByte3)
   //The sensor seems to fail to respond to the first 2 or 3 times we send a command
   //Hardware serial doesn't have this issue but software serial does.
   //Sending 10 throw away characters at it gets the units talking correctly
-  for (byte x = 0 ; x < 10 ; x++)
+  for (byte x = 0 ; x < 20 ; x++)
     particleSensor.write('!'); //Just get the software serial working
 
   //Send command packet
@@ -315,4 +331,5 @@ void sendCommand(byte commandNumber, byte dataByte2, byte dataByte3)
 
   //Now look for response
   dataAvailable();
+
 }
