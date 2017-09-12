@@ -1,4 +1,4 @@
-#!/bin/python
+#!/usr/bin/python
 #code by IV LO w Czestochowie, Bartlomiej Meller, Milos Galas, Szymon Zycinski
 import socket
 import sys
