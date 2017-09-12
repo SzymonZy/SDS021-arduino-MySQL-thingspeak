@@ -1,6 +1,6 @@
-
 #!/usr/bin/python
 # coding: UTF-8
+#code by IV LO w Czestochowie, Bartlomiej Meller, Milos Galas, Szymon Zycinski
 import requests
 import MySQLdb
 
