@@ -1,5 +1,5 @@
 # SDS0121-arduino-MySQL-thingspeak
-Simple PM2.5 and PM10 dust meter with ability to upload data to MySQL database and feed to ThingSpeak
+Simple PM2.5 and PM10 dust meter with ability to upload data to MySQL database and feed to ThingSpeak. Project made by students of IV Liceum Ogólnokształcące im. H. Sienkiewicza w Częstochowie (Poland). Code and design by Miłosz Galas, Bartłomiej Meller, Szymon Życiński.
 
 Components:
 - SDS021 (or other SDS) dust sensor
