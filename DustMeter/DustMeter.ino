@@ -1,3 +1,8 @@
+/********************************************************************
+Code by IV Liceum Ogolnoksztalcace im. H. Sienkiewicza w Czestochowie
+Bartlomiej Meller, Galas Milosz, Szymon Zycinski
+*********************************************************************/
+
 #include "SparkFun_Si7021_Breakout_Library.h"
 #include <Wire.h>
 #include <SoftwareSerial.h>
