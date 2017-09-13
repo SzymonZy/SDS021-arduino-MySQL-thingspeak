@@ -1,5 +1,5 @@
 #!/usr/bin/python
-#code by IV LO w Czestochowie, Bartlomiej Meller, Milos Galas, Szymon Zycinski
+#code by IV LO w Czestochowie, Jan Konopka, Bartlomiej Meller, Milos Galas, Szymon Zycinski
 import socket
 import sys
 from datetime import datetime
