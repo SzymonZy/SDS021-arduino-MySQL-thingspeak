@@ -11,7 +11,7 @@ import http.client
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Bind the socket to the port
-server_address = ('192.168.1.24', 5005)
+server_address = ('Put IP address here', 5005)
 print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 
